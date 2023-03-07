@@ -1,70 +1,159 @@
-# Getting Started with Create React App
+# Using React Router
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Simplified Implementation
 
-## Available Scripts
+First we create a new project, removing unneccesary boilerplate.
 
-In the project directory, you can run:
+To add the ability to switch pages, we can either use conditional rendering to display different components depending on state, or we can change the way the site is rendered on reload.
+Doing this on reload is inefficient as it requires the entire site to be re-rendered, so we would rather dynamically swap out different views using JS without reload.
 
-### `npm start`
+Rather than code this ourselves, we can use a prebuilt solution, called `react-router-dom`.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Installation
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+`npm install react-router-dom`
 
-### `npm test`
+### Implementing the Router and Routes
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+React router has several parts to it that can be used to construct a router system for displaying different pages.
 
-### `npm run build`
+The `BrowserRouter` is the main wrapper within which routing is enabled. It usually goes around the entire app.
+`Routes` is the container in which each Route is rendered.
+A `Route` is one of the specific paths that can be visited in the front end, each has a main component associated with it.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+The individual `Route` componenets must be defined, and given a path and an element to render. You can do this directly in the `Routes` container, or imported in from a separate file.
+In this example we will use a separate file to keep things organised.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Create a new file `Routes.js` in your project's root directory. This file will contain all the routes of your application.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```javascript
+import { Route, Routes } from "react-router-dom";
+import Home from "./pages/Home";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import NotFound from "./pages/NotFound";
 
-### `npm run eject`
+const AppRoutes = () => {
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/contact" element={<Contact />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+};
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+export default AppRoutes;
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+In this example, we define four routes: `/` for the Home component, `/about` for the About component, `/contact` for the Contact component, and `*` for the NotFound component.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Create your components that will be used as routes. You can organise these into a folder, in the above example they are in a folder called 'pages'. For example, Home.js could look like this:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```javascript
+const Home = () => {
+  return <h1>Welcome to my website!</h1>;
+};
 
-## Learn More
+export default Home;
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+In your main App.js file, import the `Routes`,
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```javascript
+import { BrowserRouter } from "react-router-dom";
+import AppRoutes from "./Routes";
 
-### Code Splitting
+const App = () => {
+  return (
+    <BrowserRouter>
+      <div className="App">
+        <AppRoutes />
+      </div>
+    </BrowserRouter>
+  );
+};
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+export default App;
+```
 
-### Analyzing the Bundle Size
+The BrowserRouter component wraps around the App, enabling the router functionality within its scope. We can then specify where we want the Routes to be rendered by placing the `<Routes />` component into the template. This is where the pages created earlier will be rendered.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+Now by entering the routes into the address bar, it is possible to render different views based on the url
 
-### Making a Progressive Web App
+### Navigation with Links
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+We can also create special links that allow the user to trigger page switches by clicking on them.
+We can create a navbar as part of the main app that is persistent and remains in place while the views switch.
 
-### Advanced Configuration
+First, create a new component Navbar.js:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+```javascript
+import { NavLink } from "react-router-dom";
 
-### Deployment
+const Navbar = () => {
+  return (
+    <nav>
+      <ul>
+        <li>
+          <NavLink to="/" activeClassName="active">
+            Home
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/about" activeClassName="active">
+            About
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/contact" activeClassName="active">
+            Contact
+          </NavLink>
+        </li>
+      </ul>
+    </nav>
+  );
+};
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+export default Navbar;
+```
 
-### `npm run build` fails to minify
+The `activeClassName` prop is used to specify the class name to apply when the link is active.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Import the Navbar component in your App.js file and add it above the Routes component:
+
+```javascript
+import { BrowserRouter } from "react-router-dom";
+import AppRoutes from "./AppRoutes";
+import Navbar from "./Navbar";
+
+const App = () => {
+  return (
+    <BrowserRouter>
+      <div className="App">
+        <Navbar />
+        <AppRoutes />
+      </div>
+    </BrowserRouter>
+  );
+};
+
+export default App;
+```
+
+Both `Link` and `NavLink` are components provided by `react-router-dom` that can be used to create links between different routes in your application. However, there are some differences in how they work.
+
+The main difference between `Link` and `NavLink` is that `NavLink` provides some additional features for styling and behavior, specifically for links that represent the current active route. Here are some key differences:
+
+- `Link` is a basic component that creates a normal link to a specified route. It does not provide any special styling or behavior by default.
+- `NavLink` is a component that creates a link to a specified route and applies an `activeClassName` to the link when the current route matches the link's `to` prop. This makes it easy to style the active link differently from the other links in a navbar, for example.
+- `NavLink` also supports additional props like `activeStyle` and `exact`, which allow you to further customize how the active link is styled and matched to the current route.
+
+We can add some css to style the active class on the `NavLink`:
+
+```css
+a.active {
+  font-weight: bold;
+}
+```
