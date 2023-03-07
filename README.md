@@ -97,19 +97,13 @@ const Navbar = () => {
     <nav>
       <ul>
         <li>
-          <NavLink to="/" activeClassName="active">
-            Home
-          </NavLink>
+          <NavLink to="/">Home</NavLink>
         </li>
         <li>
-          <NavLink to="/about" activeClassName="active">
-            About
-          </NavLink>
+          <NavLink to="/about">About</NavLink>
         </li>
         <li>
-          <NavLink to="/contact" activeClassName="active">
-            Contact
-          </NavLink>
+          <NavLink to="/contact">Contact</NavLink>
         </li>
       </ul>
     </nav>
@@ -118,8 +112,6 @@ const Navbar = () => {
 
 export default Navbar;
 ```
-
-The `activeClassName` prop is used to specify the class name to apply when the link is active.
 
 Import the Navbar component in your App.js file and add it above the Routes component:
 
@@ -147,8 +139,8 @@ Both `Link` and `NavLink` are components provided by `react-router-dom` that can
 The main difference between `Link` and `NavLink` is that `NavLink` provides some additional features for styling and behavior, specifically for links that represent the current active route. Here are some key differences:
 
 - `Link` is a basic component that creates a normal link to a specified route. It does not provide any special styling or behavior by default.
-- `NavLink` is a component that creates a link to a specified route and applies an `activeClassName` to the link when the current route matches the link's `to` prop. This makes it easy to style the active link differently from the other links in a navbar, for example.
-- `NavLink` also supports additional props like `activeStyle` and `exact`, which allow you to further customize how the active link is styled and matched to the current route.
+- `NavLink` is a component that creates a link to a specified route and applies an `active` class to the link when the current route matches the link's `to` prop. This makes it easy to style the active link differently from the other links in a navbar, for example.
+- `NavLink` also supports `exact`, which allow you to further customize how the active link is styled and matched to the current route.
 
 We can add some css to style the active class on the `NavLink`:
 
