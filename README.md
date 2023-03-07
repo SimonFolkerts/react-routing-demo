@@ -97,19 +97,13 @@ const Navbar = () => {
     <nav>
       <ul>
         <li>
-          <NavLink to="/" activeClassName="active">
-            Home
-          </NavLink>
+          <NavLink to="/">Home</NavLink>
         </li>
         <li>
-          <NavLink to="/about" activeClassName="active">
-            About
-          </NavLink>
+          <NavLink to="/about">About</NavLink>
         </li>
         <li>
-          <NavLink to="/contact" activeClassName="active">
-            Contact
-          </NavLink>
+          <NavLink to="/contact">Contact</NavLink>
         </li>
       </ul>
     </nav>
@@ -119,7 +113,7 @@ const Navbar = () => {
 export default Navbar;
 ```
 
-The `activeClassName` prop is used to specify the class name to apply when the link is active.
+The link for the currently active page will by default have a class of active applied to it
 
 Import the Navbar component in your App.js file and add it above the Routes component:
 
@@ -157,3 +151,121 @@ a.active {
   font-weight: bold;
 }
 ```
+
+## List/Detail Model
+
+As well as page like navigation using a navbar, we can use `Link` components to enable the user to click on a list item and be taken to a detailed view of that list item.
+
+Assume we have a list of blog posts that we want to display on a page, and we want to create a link for each post that takes the user to a detail view for that post.
+
+Create a new component `PostList.js` that will display the list of blog posts:
+
+```javascript
+import { Link } from "react-router-dom";
+
+const PostList = ({ posts }) => {
+  return (
+    <div>
+      <h1>Blog Posts</h1>
+      <ul>
+        {posts.map((post) => (
+          <li key={post.id}>
+            <Link to={`/posts/${post.id}`} state={post}>
+              {post.title}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default PostList;
+```
+
+In this example, we're using a `Link` component to create a link to the detail view for each blog post. The URL for the link is constructed using the `post.id` value. We are also passing a value into a prop called State.
+There are two ways that are being used here to transfer data between pages. We can use the dynamic url to put data into the url, like an id for example. This is accessed in the child using `useParams` hook.
+The other way is with the state prop, that can pass data through without encoding it into the URL. It is accessed with the `useLocation` hook in the child. We will demonstrate both.
+
+Create a new component `PostDetail.js` that will display the details for a single blog post:
+
+```javascript
+import { useParams, useLocation } from "react-router-dom";
+const PostDetail = () => {
+  return (
+    <div>
+      <h2>param: {useParams().id}</h2>
+      <h2>state: {useLocation().state.title}</h2>
+    </div>
+  );
+};
+
+export default PostDetail;
+```
+
+Here the child is importing both useParams and useLocation. useParams, when called, returns an object that contains properties that prepresent the params in the url, as specified in the Routes component.
+useLocation allows us access to the state cache, inside which is stored whatever was passed through the link in the parent. In the example we are accessing the title of the value in the state.
+
+Which method you use depends on where the data is coming from and how it should be transmitted, either through the url or as a transfer of data through the state.
+
+If you were pulling this data from an API, then you would probably want to use params. Each list item is a Link that when clicked on will load the detail view up, sending the id of the clicked item through as a url param.
+This param is then read in the detail view using useParam and then appended to the url of a GET request using fetch() to GET the item by id.
+
+If the data is local then the state cache would make more sense.
+
+We can implement the post list on the `Home.js` component
+
+```javascript
+import PostList from "../components/PostList";
+
+const Home = () => {
+  const posts = [
+    { id: 1, title: "First Post", content: "This is the first post." },
+    { id: 2, title: "Second Post", content: "This is the second post." },
+    { id: 3, title: "Third Post", content: "This is the third post." },
+  ];
+
+  return (
+    <div>
+      <h2>Home Page</h2>
+      <PostList posts={posts}></PostList>
+    </div>
+  );
+};
+
+export default Home;
+```
+
+You can see that the post list is added and being passed into the `PostList` component.
+
+Now we need to add a route for the detail view.
+
+```javascript
+import { Route, Routes } from "react-router-dom";
+import Home from "./pages/Home";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import PostDetail from "./components/PostDetail";
+import NotFound from "./pages/NotFound";
+
+function AppRoutes() {
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/contact" element={<Contact />} />
+      <Route path="/posts/:id" element={<PostDetail />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+}
+
+export default AppRoutes;
+```
+
+Now we have a route with a dynamic segment. Each list item gets a link that goes to this route, but each gets its own id attached to the route as a param. When a link is clicked, the detail view on the route loads, and receives
+the id of the link that was clicked. This could then be used to make a GET to the API for example.
+
+In addition, each link also is making use of the state cache. The post that is being used to generate the link is being passed into the state cache, where it can then be accessed in the detail view using useLocation().
+
+Two different means of transmitting data from page to page.
